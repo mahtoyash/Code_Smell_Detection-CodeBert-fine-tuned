@@ -4,16 +4,12 @@
 # # CodeSmellDetector: 5-Class Code Smell Detection with CodeBERT
 # 
 # Fine-tunes `microsoft/codebert-base` to detect Python code smells:
-# 
-# | Label | Smell | Description |
-# |-------|-------|-------------|
+
 # | 0 | Long Method | Function >20 lines or cyclomatic complexity >10 |
 # | 1 | Large Parameter List | Function with >5 parameters |
 # | 2 | God Class | Class with >10 methods AND >15 attributes |
 # | 3 | Feature Envy | Method uses external objects more than self |
 # | 4 | Clean Code | No smells detected |
-# 
-# **Target**: 88%+ accuracy | **Hardware**: RTX 4050 (8GB VRAM)
 
 # In[1]:
 
@@ -255,11 +251,11 @@ from radon.complexity import cc_visit
 from collections import Counter
 import random
 
-# Smell thresholds - RELAXED GOD CLASS!
+# Smell thresholds -  GOD CLASS!
 LONG_METHOD_LINES = 20
 LONG_METHOD_CC = 10
-GOD_CLASS_METHODS = 7       # Changed from 10 → 7
-GOD_CLASS_ATTRIBUTES = 10   # Changed from 15 → 10
+GOD_CLASS_METHODS = 7       
+GOD_CLASS_ATTRIBUTES = 10   
 LARGE_PARAM_COUNT = 5
 FEATURE_ENVY_THRESHOLD = 3
 
@@ -360,10 +356,7 @@ for name in LABEL_NAMES:
 # In[27]:
 
 
-# ╔══════════════════════════════════════════════════════════════╗
-# ║  CELL 4b — REAL GOD CLASS MINER                             ║
-# ║  Targets repos known to contain real god classes            ║
-# ╚══════════════════════════════════════════════════════════════╝
+#  CELL 4b — REAL GOD CLASS MINER                             
 
 import ast
 import os
@@ -371,8 +364,6 @@ import subprocess
 import textwrap
 from pathlib import Path
 
-# ── Repos specifically chosen because they CONTAIN god classes ──
-# These are legacy codebases, enterprise software, and fast-grown
 # projects where god classes are common and real
 
 GOD_CLASS_REPOS = [
