@@ -1,70 +1,62 @@
-CodeSmellDetector: Hybrid Deep Learning System for Code Quality Analysis
-Project Overview
-CodeSmellDetector is a specialized machine learning framework designed to automate the detection of technical debt in Python source code. By fine-tuning the microsoft/codebert-base model, this project bridges the gap between static analysis and semantic understanding.
+CodeSmellDetector: Hybrid Machine Learning for Technical Debt Detection
 
-The system categorizes code into five distinct classes: Long Method, Large Parameter List, God Class, Feature Envy, and Clean Code. Unlike traditional tools that rely solely on hard-coded rules, this project uses a hybrid architecture that combines Transformer-based predictions with Abstract Syntax Tree (AST) heuristic overrides for maximum reliability.
+1. Project Description
+CodeSmellDetector is a specialized software quality tool that uses Deep Learning to identify architectural and structural "smells" in Python code. While traditional static analyzers (like Pylint or Flake8) use hard-coded rules, this project utilizes a fine-tuned CodeBERT transformer model to understand the semantic intent and complexity of code.
 
-Technical Architecture
-1. Model Core
-The engine uses CodeBERT, a bimodal pre-trained model for programming languages. It has been fine-tuned on a massive dataset of Python snippets, allowing it to understand the structural and functional context of code rather than just keyword matching.
+The project addresses the challenge of identifying technical debt that is often missed by standard linting tools, such as Feature Envy or God Classes, which require a deeper understanding of class-method relationships.
 
-2. Detection Categories (Labels)
-Long Method (Label 0): Functions exceeding 20 lines or a Cyclomatic Complexity (CC) score of 10.
+2. Technical Features
+Model Core: Fine-tuned microsoft/codebert-base on a dataset of over 60,000 code snippets.
 
-Large Parameter List (Label 1): Functions defined with more than 5 parameters, hindering maintainability.
+Hybrid Architecture: Combines probabilistic Deep Learning predictions with a deterministic Heuristic Fallback layer using Python's Abstract Syntax Tree (AST).
 
-God Class (Label 2): Massive classes that handle too many responsibilities (defined by 7+ methods and 10+ attributes).
+Automated Data Mining: Includes scripts to clone and analyze top-tier open-source repositories (Django, Pandas, Scikit-learn) for real-world code smell extraction.
 
-Feature Envy (Label 3): Methods that demonstrate a higher coupling with external objects than their own class members.
+Synthetic Data Engine: Developed a custom generator to create "Hard Negatives" (code that appears to be a smell but is architecturally correct) to improve model precision.
 
-Clean Code (Label 4): Standard compliant code that serves as a negative control for training.
+3. Classification Categories
+The system is trained to detect five specific categories:
 
-3. Data Engineering Pipeline
-Production Mining: The system includes a dedicated miner that clones and scans enterprise-grade repositories (including Django, Pandas, and Odoo) to extract real-world instances of code smells.
+Long Method: Functions that have excessive lines of code or high cyclomatic complexity.
 
-Synthetic Generation: To solve class imbalance issues, a custom synthetic engine generates over 60,000 samples including "Hard Negatives"—code that looks like a smell (e.g., a Dataclass with many attributes) but is architecturally sound.
+Large Parameter List: Functions that accept too many arguments, making them difficult to test and maintain.
 
-Stratified Balancing: The dataset is processed through a stratified split to ensure equal representation during the fine-tuning process.
+God Class: Large classes that have centralized too much intelligence and responsibility (High Method/Attribute count).
 
-Hybrid Inference Engine
-A key differentiator of this project is the Heuristic Fallback Layer.
-The system does not rely blindly on the neural network. For high-impact labels like "God Class," the inference server runs a secondary check using Python's ast module. If the model predicts a God Class but the structural metrics do not meet a secondary safety threshold, the system can flag the result for manual review or apply a heuristic correction.
+Feature Envy: Methods that are more coupled to external objects than to the class they belong to.
 
-System Performance
-Model Optimization: Implements Gradient Accumulation and FP16 Mixed Precision training for efficient VRAM usage.
+Clean Code: High-quality code used as a control group to minimize false positives.
 
-Evaluation Metrics: Beyond standard accuracy, the project evaluates performance using Macro F1-Score to ensure high precision across imbalanced real-world data.
+4. System Implementation
+Backend: PyTorch and HuggingFace Transformers for model training and management.
 
-Explainability: Includes a confusion matrix generation utility to visualize inter-class misclassifications (e.g., distinguishing between a Long Method and Feature Envy).
+Static Analysis: Integrated radon for cyclomatic complexity and ast for structural parsing.
 
-Installation and Deployment
-Environment Setup
-The project requires Python 3.10 and the following libraries:
+Deployment: A Flask-based REST API that accepts raw code strings and returns a detailed JSON analysis including confidence scores.
 
-PyTorch
+Optimization: Utilized Mixed Precision (FP16) and Gradient Accumulation to train large transformer models on consumer-grade hardware.
 
-Transformers (HuggingFace)
+5. Evaluation Metrics
+The project focuses on Macro F1-Score rather than simple Accuracy to ensure the model performs reliably across all categories, especially for rarer smells like God Classes. It includes a "Real-Code Only" evaluation module to validate model performance on production-grade snippets versus synthetic examples.
 
-Datasets
+6. Setup and Usage
+The system requires Python 3.10+ and the following dependencies:
 
-Radon (for Cyclomatic Complexity)
+torch
 
-Flask (for API deployment)
+transformers
 
-API Usage
-The system deploys a Flask REST API on port 5000.
+datasets
 
-Endpoint: /predict
+flask
 
-Method: POST
+radon
 
-Payload: {"code": "string"}
+To use the system, run the inference server and send a POST request to the /predict endpoint with the code snippet in the request body.
 
-Response: Returns the predicted smell, confidence score, and raw model logits.
+7. Future Scope
+Development of a CLI tool for local repository auditing.
 
-Future Roadmap
-Integration as a GitHub Action for automated PR reviews.
+Support for multi-file analysis to detect Cross-File Feature Envy.
 
-Expansion to support Java and C++ using multi-lingual CodeBERT.
-
-Development of a VS Code extension for real-time IDE feedback.
+Integration with CI/CD pipelines to block commits that introduce significant technical debt.
